@@ -1,7 +1,6 @@
 const got = require("got");
 const metascraper = require("metascraper")([
   require("metascraper-iframe")(),
-  require("metascraper-url")(),
 ]);
 
 export default async (req, res) => {
