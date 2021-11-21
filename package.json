@@ -1,0 +1,7 @@
+{
+  "name": "twitter-podcast-functions",
+  "version": "1.0.0",
+  "dependencies": {
+    "unfurl.js": "^5.6.2"
+  }
+}
