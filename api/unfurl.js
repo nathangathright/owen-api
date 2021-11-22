@@ -9,8 +9,7 @@ export default async (req, res) => {
     if (!error) {
       res.status(200).json({ 
         hasTwitterPlayer,
-        "twitterPlayer" : twitterPlayer,
-        result
+        "twitterPlayer" : twitterPlayer
       });
     } else {
       res.status(500).json({ error: error });      

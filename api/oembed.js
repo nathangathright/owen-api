@@ -4,8 +4,8 @@ const metascraper = require("metascraper")([
 ]);
 
 export default async (req, res) => {
-    let targetUrl = new URL(req.query.url);
-    const { body: html, url } = await got(targetUrl);
+    let targetURL = new URL(req.query.url);
+    const { body: html, url } = await got(targetURL);
     const metadata = await metascraper({ html, url });
     console.log(metadata);
     res.json(metadata);
