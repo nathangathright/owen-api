@@ -1,0 +1,25 @@
+{
+  "headers": [
+    {
+      "source": "api/fetch",
+      "headers" : [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS"
+        },
+        {
+          "key" : "Cache-Control",
+          "value" : "max-age=604800, stale-while-revalidate=86400"
+        }
+      ]
+    }
+  ]
+}
