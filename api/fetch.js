@@ -1,7 +1,8 @@
-const got = require("got")
-const xmlGot = got.extend(require("got-xml")())
-const { JSDOM } = require("jsdom")
-const normalizeUrl = require('normalize-url')
+import got from 'got'
+import xml2js from 'xml2js'
+import normalizeUrl from 'normalize-url'
+import jsdom from 'jsdom'
+const JSDOM = jsdom.JSDOM
 
 const formatNumber = (number) =>
   (/^\d+(\.\d+)?%$/.test(number)) ? null : parseInt(number, 10)
@@ -10,15 +11,16 @@ const formatURL = (link) =>
   normalizeUrl(link, {forceHttps: true})
 
 const getTwitter = (dom) => {
-  const meta = (selector) => {
+  const meta = (selector, isURL) => {
     const element = dom.querySelector(`meta[name="${selector}"], meta[property="${selector}"]`)
-    return element ? element.getAttribute('content') : null
+    const content = element ? element.getAttribute('content') : null
+    return (content && isURL) ? formatURL(content) : content
   }
 
   if (meta('twitter:player')) {
     return {
-      url: formatURL(meta('twitter:player')),
-      stream: formatURL(meta('twitter:player:stream')),
+      url: meta('twitter:player', true),
+      stream: meta('twitter:player:stream', true),
       width: formatNumber(meta('twitter:player:width')),
       height: formatNumber(meta('twitter:player:height')),
     }
@@ -30,8 +32,8 @@ const getTwitter = (dom) => {
 
 const oEmbedJSON = async (url) => {
   const response = await got(url).json()
-  const width = formatNumber(response.width),
-  const height = formatNumber(response.height),
+  const width = formatNumber(response.width)
+  const height = formatNumber(response.height)
   const iframe = JSDOM.fragment(response.html).querySelector('iframe')
   const src = iframe ? formatURL(iframe.getAttribute('src')) : null
 
@@ -47,12 +49,13 @@ const oEmbedJSON = async (url) => {
 }
 
 const oEmbedXML = async (url) => {
-  const response = await xmlGot(url)
-  const width = formatNumber(response.body.oembed.width[0]),
-  const height = formatNumber(response.body.oembed.height[0]._),
-  const CDATA = response.body.oembed.html[0];
-  const regex = /src=\"([^"]+)\"/;
-  const src = regex.exec(CDATA)[1];
+  const { body } = await got(url)
+  const response = await xml2js.parseStringPromise(body)
+  const width = formatNumber(response.oembed.width[0])
+  const height = formatNumber(response.oembed.height[0]._)
+  const CDATA = response.oembed.html[0]
+  const regex = /src=\"([^"]+)\"/
+  const src = regex.exec(CDATA)[1]
 
   if (src) {
     return {
@@ -104,12 +107,12 @@ const getOther = async (link, dom) => {
         height: 140,
       }
     default:
-      break;
+      break
   }
 }
 
 export default async (req, res) => {
-  const url = normalizeUrl(req.query.url, {forceHttps: true})
+  const url = formatURL(req.query.url)
   const { document } = (await JSDOM.fromURL(url)).window
   
   Promise.all([
